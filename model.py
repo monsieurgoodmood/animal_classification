@@ -1,10 +1,8 @@
-from ultralytics import YOLO
+from ultralytics import YOLO  # Importez la classe YOLO
 
-# Charger un modèle pré-entraîné pour la classification
-model = YOLO('yolov8n-cls.pt')  # Le modèle sera téléchargé automatiquement s'il n'est pas trouvé localement
+# Assurez-vous que le modèle et le fichier de données YAML sont spécifiés correctement
+model = YOLO('yolov8n-cls.pt')  # Spécifiez le chemin correct au modèle pré-entraîné si nécessaire
 
 # Lancer l'entraînement
-results = model.train(data='/content/animal_classification/animal_data.yaml', # Chemin vers votre fichier YAML
-                      epochs=50,  # Nombre d'époques pour l'entraînement
-                      imgsz=224,  # Taille des images pour l'entraînement
-                      batch=16)  # Utilisez 'batch' au lieu de 'batch_size'
+# Notez que vous devez vous assurer que 'data' pointe vers le chemin correct de votre fichier YAML
+results = model.train(data='/content/animal_classification/animal_data.yaml', epochs=50, imgsz=224, batch=16)
