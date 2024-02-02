@@ -3,7 +3,7 @@ import shutil
 from sklearn.model_selection import train_test_split
 
 # Définir le chemin de votre dossier de données
-data_path = '/content/drive/MyDrive/ColabNotebooks/raw_data/kaggle_animal'
+data_path = '/content/drive/MyDrive/ColabNotebooks/raw_data/kaggle_dataset'
 classes = ['cat', 'bird', 'dog']
 
 # Créer des dossiers pour les ensembles d'entraînement et de validation
