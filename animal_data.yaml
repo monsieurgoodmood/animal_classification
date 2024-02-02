@@ -1,6 +1,6 @@
 # animal_data.yaml
-train: /content/animal_classification/train
-val: /content/animal_classification/val
+train: '/content/animal_classification/train'
+val: '/content/animal_classification/val'
 
 nc: 3  # nombre de classes
 names: ['cat', 'bird', 'dog']
