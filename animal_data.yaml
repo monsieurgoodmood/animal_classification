@@ -2,5 +2,5 @@
 train: /content/animal_classification/train
 val: /content/animal_classification/val
 
-nc: 3  # nombre de classes
+nc: 3
 names: ['cat', 'bird', 'dog']
