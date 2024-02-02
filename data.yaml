@@ -1,5 +1,6 @@
-path: /content/animal_classification  # chemin d'accès à la racine des données
-train: train  # dossier contenant les données d'entraînement
-val: val  # dossier contenant les données de validation
+# animal_data.yaml
+train: /content/animal_classification/train
+val: /content/animal_classification/val
+
 nc: 3  # nombre de classes
-names: ['cat', 'bird', 'dog']  # noms des classes
+names: ['cat', 'bird', 'dog']

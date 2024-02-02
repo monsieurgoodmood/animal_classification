@@ -1,7 +1,8 @@
 from ultralytics import YOLO  # Importez la classe YOLO
 
-# Charger le modèle pré-entraîné
-model = YOLO('yolov8n-cls.pt')
-
-# Lancer l'entraînement
-model.train(data='data.yaml', epochs=100, imgsz=224, batch_size=16)
+# Chargement et entraînement du modèle
+model = YOLO('yolov8n-cls.yaml')  # Créez un modèle à partir d'un fichier de configuration
+results = model.train(data='animal_data.yaml',  # Spécifiez le chemin vers votre fichier de données
+                      epochs=50,  # Définissez le nombre d'époques d'entraînement
+                      imgsz=224,  # Définissez la taille des images
+                      batch_size=16)  # Définissez la taille du lot
