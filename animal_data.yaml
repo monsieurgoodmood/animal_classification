@@ -1,6 +1,6 @@
 # animal_data.yaml
-train: /train
-val: /val
+train: /content/animal_classification/datasets/animal_data.yaml/train
+val: /content/animal_classification/datasets/animal_data.yaml/val
 
 nc: 3
 names: ['cat', 'bird', 'dog']
