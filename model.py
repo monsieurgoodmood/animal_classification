@@ -4,7 +4,7 @@ from ultralytics import YOLO
 model = YOLO('yolov8n-cls.pt')
 
 # Configurer les paramètres d'entraînement et lancer l'entraînement
-model.train(data='/content/animal_classification/data.yaml',
+model.train(data='/content/animal_classification/animal_classification.yaml',
             epochs=50,
             imgsz=224,
             batch=16)  # Utilisez 'batch' au lieu de 'batch_size'
