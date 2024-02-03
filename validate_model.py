@@ -1,15 +1,12 @@
 from ultralytics import YOLO
 import os
-import torch
-from sklearn.metrics import classification_report, confusion_matrix
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
-from sklearn.metrics import accuracy_score, precision_recall_fscore_support
-
+from sklearn.metrics import accuracy_score, precision_recall_fscore_support, confusion_matrix
 
 # Charger le modèle pré-entraîné
-model = YOLO('/content/animal_classification/best.pt')  # Mettez le chemin de votre fichier best.pt
+model = YOLO('/content/animal_classification/best.pt')  # Assurez-vous du chemin
 
 # Définir le chemin du dossier de validation et les classes
 val_dir = '/content/animal_classification/val'
@@ -26,14 +23,14 @@ for i, cls in enumerate(classes):
         img_path = os.path.join(class_dir, img_file)
 
         # Effectuer la prédiction
-        results = model(img_path)
-        # Récupérer les prédictions
-        predictions = results.pred[0] if isinstance(results.pred, list) else results.pred
-        confidence, class_pred = torch.max(predictions, dim=1)
+        result = model(img_path)
 
-        # Ajouter la vraie classe et la classe prédite aux listes
+        # Récupérer la classe prédite (la plus haute confiance)
+        pred_class = result.pred[0][0] if isinstance(result.pred, list) else result.pred[0]  # Ajustez selon le format de sortie
+        y_pred.append(classes.index(pred_class))
+
+        # Ajouter la vraie classe
         y_true.append(i)
-        y_pred.append(class_pred.item())
 
 # Calculer les métriques globales
 accuracy = accuracy_score(y_true, y_pred)
@@ -46,7 +43,7 @@ print(f'Recall: {recall:.2f}')
 print(f'F1 Score: {fscore:.2f}')
 
 # Afficher la matrice de confusion
-conf_mat = confusion_matrix(y_true, y_pred, target_names=classes)
+conf_mat = confusion_matrix(y_true, y_pred)
 print('Confusion Matrix:')
 print(conf_mat)
 
