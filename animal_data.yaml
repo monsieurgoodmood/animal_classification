@@ -1,6 +1,6 @@
-train: /content/animal_classification/train
-val: /content/animal_classification/val
-test: /content/animal_classification/test  # si vous avez également un ensemble de test
+train: /content/animal_classification
+val: /content/animal_classification
+test: /content/animal_classification  # si vous avez également un ensemble de test
 
 nc: 3
 names: ['cat', 'bird', 'dog']
