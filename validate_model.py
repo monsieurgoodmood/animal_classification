@@ -1,6 +1,5 @@
 from ultralytics import YOLO
 import os
-import cv2
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -14,44 +13,48 @@ def evaluate_model(data_dir, classes, model):
         class_dir = os.path.join(data_dir, cls)
         for img_file in os.listdir(class_dir):
             img_path = os.path.join(class_dir, img_file)
-            img = cv2.imread(img_path)  # Chargement de l'image
-            results = model(img)  # Effectuer la prédiction
+            results = model(img_path)  # Effectuer la prédiction avec le chemin de l'image
 
-            # Vérification si des objets sont détectés
-            if results.pred[0].shape[0] > 0:
-                preds = results.pred[0]
-                # Obtenir les indices des classes avec la plus grande confiance
-                max_conf_indices = preds[:, 5:].max(1).indices.cpu().numpy()
-                # Obtenir l'indice de la classe prédite avec la plus haute confiance pour la première détection
-                pred_class = max_conf_indices[0]
+            # Gérer la structure des résultats retournés par Ultralytics YOLOv8
+            if len(results) > 0 and len(results.xyxy[0]) > 0:  # Vérifier si des détections ont été faites
+                preds = results.xyxy[0]  # Prendre les prédictions du premier lot (batch) si disponible
+                best_pred_idx = preds[:, 5].argmax()  # Trouver l'indice de la prédiction avec la confiance la plus élevée
+                pred_class = int(preds[best_pred_idx, 5])  # Obtenir la classe de la meilleure prédiction
                 y_pred.append(pred_class)
             else:
-                y_pred.append(-1)  # -1 pour indiquer qu'aucune classe n'a été détectée
+                y_pred.append(-1)  # Indiquer l'absence de détection par -1
 
             y_true.append(i)
 
-    return y_true, y_pred
+    # Filtrer les valeurs -1 pour les prédictions manquantes
+    y_true, y_pred = zip(*[(t, p) for t, p in zip(y_true, y_pred) if p != -1])
 
-# Assurez-vous que le chemin vers le modèle et les dossiers de données sont corrects
+    return np.array(y_true), np.array(y_pred)
+
+# Chemin vers le modèle et les dossiers de données
 model_path = '/content/animal_classification/runs/classify/train/weights/best.pt'
-model = YOLO(model_path)
-
 val_dir = '/content/animal_classification/val'
 test_dir = '/content/animal_classification/test'
 classes = ['bird', 'cat', 'dog']
 
+# Initialisation du modèle
+model = YOLO(model_path)
+
+# Évaluation sur l'ensemble de validation
 print("Évaluation sur l'ensemble de validation:")
 y_true_val, y_pred_val = evaluate_model(val_dir, classes, model)
 accuracy_val = accuracy_score(y_true_val, y_pred_val)
 precision_val, recall_val, fscore_val, _ = precision_recall_fscore_support(y_true_val, y_pred_val, average='weighted')
 print(f'Validation - Accuracy: {accuracy_val:.2f}, Precision: {precision_val:.2f}, Recall: {recall_val:.2f}, F1 Score: {fscore_val:.2f}')
 
+# Évaluation sur l'ensemble de test
 print("\nÉvaluation sur l'ensemble de test:")
 y_true_test, y_pred_test = evaluate_model(test_dir, classes, model)
 accuracy_test = accuracy_score(y_true_test, y_pred_test)
 precision_test, recall_test, fscore_test, _ = precision_recall_fscore_support(y_true_test, y_pred_test, average='weighted')
 print(f'Test - Accuracy: {accuracy_test:.2f}, Precision: {precision_test:.2f}, Recall: {recall_test:.2f}, F1 Score: {fscore_test:.2f}')
 
+# Affichage de la matrice de confusion
 conf_mat_test = confusion_matrix(y_true_test, y_pred_test)
 sns.heatmap(conf_mat_test, annot=True, fmt='d', xticklabels=classes, yticklabels=classes)
 plt.title('Confusion Matrix - Test Set')
