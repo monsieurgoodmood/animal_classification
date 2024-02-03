@@ -32,7 +32,7 @@ def evaluate_model(data_dir, classes, model):
     return np.array(y_true_filtered), np.array(y_pred_filtered)
 
 # Chemin vers le modèle et les dossiers de données
-model_path = '/content/animal_classification/runs/train/weights/best.pt'
+model_path = '/content/animal_classification/runs/classify/train/weights/best.pt'
 val_dir = '/content/animal_classification/val'
 classes = ['bird', 'cat', 'dog']
 
