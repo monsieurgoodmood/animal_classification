@@ -1,6 +1,5 @@
 import os
 from ultralytics import YOLO
-import torch
 import numpy as np
 from sklearn.metrics import accuracy_score, precision_recall_fscore_support
 
@@ -20,15 +19,16 @@ def evaluate_model(data_dir, classes, model):
         class_dir = os.path.join(data_dir, cls)
         for img_file in os.listdir(class_dir):  # Parcourir chaque image
             img_path = os.path.join(class_dir, img_file)
-            results = model(img_path)
-            preds = results.pred[0]
-            if len(preds) > 0:
-                # Extraction de la classe prédite avec la plus grande confiance
-                pred_class = preds[0, -1].item()
+            results = model(img_path)  # Prédire avec le modèle
+
+            # Utiliser .probs pour obtenir les probabilités de classification et sélectionner la classe prédite
+            pred_probs = results.probs  # Accès aux probabilités de classe
+            if pred_probs is not None and len(pred_probs) > 0:
+                pred_class_id = np.argmax(pred_probs)  # Obtenir l'ID de classe avec la probabilité la plus élevée
                 y_true.append(i)
-                y_pred.append(pred_class)
+                y_pred.append(pred_class_id)
             else:
-                # Gérer les cas où aucune prédiction n'est faite
+                # Gérer les cas où aucune prédiction de classe n'est faite
                 y_pred.append(-1)  # Utiliser -1 pour les prédictions manquantes
                 y_true.append(i)
     return np.array(y_true), np.array(y_pred)
