@@ -1,10 +1,6 @@
-# animal_data.yaml
-
-#train: /content/animal_classification/train
-#val: /content/animal_classification/val
-
-train: /content/animal_classification
-val: /content/animal_classification
+train: /content/animal_classification/train
+val: /content/animal_classification/val
+test: /content/animal_classification/test  # si vous avez également un ensemble de test
 
 nc: 3
 names: ['cat', 'bird', 'dog']
