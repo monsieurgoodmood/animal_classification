@@ -2,6 +2,7 @@ from ultralytics import YOLO
 import os
 import numpy as np
 import torch
+import yaml
 from sklearn.metrics import accuracy_score, precision_recall_fscore_support, confusion_matrix
 from pathlib import Path
 
