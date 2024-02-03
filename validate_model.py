@@ -9,7 +9,7 @@ from sklearn.metrics import accuracy_score, precision_recall_fscore_support
 
 
 # Charger le modèle pré-entraîné
-model = YOLO('content/animal_classification/best.pt')  # Mettez le chemin de votre fichier best.pt
+model = YOLO('/content/animal_classification/best.pt')  # Mettez le chemin de votre fichier best.pt
 
 # Définir le chemin du dossier de validation et les classes
 val_dir = '/content/animal_classification/val'
