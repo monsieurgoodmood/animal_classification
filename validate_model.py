@@ -21,9 +21,9 @@ def evaluate_model(data_dir, classes, model):
             img_path = os.path.join(class_dir, img_file)
             results = model(img_path)  # Prédire avec le modèle
 
-            # Utiliser .probs pour obtenir les probabilités de classification et sélectionner la classe prédite
-            pred_probs = results.probs  # Accès aux probabilités de classe
-            if pred_probs is not None and len(pred_probs) > 0:
+            # S'assurer qu'il y a une prédiction et extraire les probabilités
+            if results and hasattr(results[0], 'probs') and results[0].probs is not None:
+                pred_probs = results[0].probs
                 pred_class_id = np.argmax(pred_probs)  # Obtenir l'ID de classe avec la probabilité la plus élevée
                 y_true.append(i)
                 y_pred.append(pred_class_id)
@@ -31,6 +31,7 @@ def evaluate_model(data_dir, classes, model):
                 # Gérer les cas où aucune prédiction de classe n'est faite
                 y_pred.append(-1)  # Utiliser -1 pour les prédictions manquantes
                 y_true.append(i)
+
     return np.array(y_true), np.array(y_pred)
 
 # Évaluer le modèle et calculer les métriques
