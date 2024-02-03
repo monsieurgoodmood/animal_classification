@@ -14,18 +14,17 @@ def evaluate_model(data_dir, classes, model):
         for img_file in os.listdir(class_dir):
             img_path = os.path.join(class_dir, img_file)
             results = model(img_path)
-            preds = results.pred[0]
+            preds = results[0] if len(results) > 0 else []  # Adjust based on your model's output
 
             if len(preds) > 0:
-                # Prendre la classe avec la confiance la plus élevée
-                pred_classes = preds[:, -1].cpu().numpy()
-                confidences = preds[:, -2].cpu().numpy()
-                best_pred_idx = np.argmax(confidences)
-                pred_class = int(pred_classes[best_pred_idx])
+                # Supposons que preds est une liste de tuples (class_index, confidence)
+                pred_classes = [pred[0] for pred in preds]  # Extraire les classes prédites
+                confidences = [pred[1] for pred in preds]  # Extraire les confidences
+                best_pred_idx = np.argmax(confidences)  # Index de la prédiction avec la plus haute confiance
+                pred_class = pred_classes[best_pred_idx]  # Classe prédite avec la plus haute confiance
                 y_pred.append(pred_class)
             else:
                 y_pred.append(None)  # Ou une valeur spéciale indiquant 'aucune détection'
-
             y_true.append(i)
 
     # Filtrer les None pour éviter les erreurs dans les métriques
@@ -34,7 +33,8 @@ def evaluate_model(data_dir, classes, model):
     return y_true_filtered, y_pred_filtered
 
 # Charger le modèle pré-entraîné
-model = YOLO('/content/animal_classification/runs/classify/train/weights/best.pt')
+model_path = '/content/animal_classification/runs/classify/train/weights/best.pt'
+model = YOLO(model_path)
 
 # Définir les chemins des dossiers de validation et de test, et les classes
 val_dir = '/content/animal_classification/val'
