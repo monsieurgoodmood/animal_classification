@@ -11,7 +11,7 @@ model = YOLO('/content/drive/MyDrive/ColabNotebooks/best.pt')  # Remplacez par l
 # Charger les données de validation
 data_yaml = '/content/animal_classification/animal_data.yaml'  # Remplacez par le chemin réel vers votre fichier YAML de données
 with open(data_yaml) as f:
-    data = yaml.safe_load(f)  # Charger le fichier YAML
+    data = data_yaml.safe_load(f)  # Charger le fichier YAML
 val_dir = data['val']  # Récupérer le chemin vers les données de validation
 
 # Initialiser les listes pour les étiquettes réelles et prédites
