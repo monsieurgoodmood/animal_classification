@@ -1,7 +1,7 @@
 from ultralytics import YOLO
 import os
 import numpy as np
-from sklearn.metrics import accuracy_score, precision_recall_fscore_support, confusion_matrix
+from sklearn.metrics import accuracy_score, precision_recall_fscore_support
 import matplotlib.pyplot as plt
 import seaborn as sns
 
@@ -16,9 +16,10 @@ def evaluate_model(data_dir, classes, model):
             results = model(img_path)  # Effectuer la prédiction avec le chemin de l'image
 
             # S'assurer que les résultats sont sous la forme attendue
-            if results.xyxy[0].shape[0] > 0:  # Vérifiez si des prédictions ont été faites
-                for pred in results.xyxy[0]:
-                    y_pred.append(int(pred[-1].item()))  # Ajouter la classe prédite
+            if len(results.xyxy[0]) > 0:  # Vérifiez si des prédictions ont été faites
+                preds = results.xyxy[0]  # Utiliser les prédictions dans le format xyxy
+                best_pred = preds[preds[:, 4].argmax()]  # Sélectionner la prédiction avec la plus haute confiance
+                y_pred.append(int(best_pred[-1].item()))  # Ajouter la classe prédite
             else:
                 y_pred.append(-1)  # Indiquer l'absence de détection
 
