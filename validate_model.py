@@ -1,39 +1,32 @@
-# Importation des bibliothèques nécessaires
 from ultralytics import YOLO
 import os
-import cv2
-import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
+import numpy as np
 from sklearn.metrics import accuracy_score, precision_recall_fscore_support, confusion_matrix
 
-# Fonction pour évaluer le modèle sur un ensemble de données spécifié
 def evaluate_model(data_dir, classes, model):
-    y_true = []  # Liste pour stocker les vraies classes
-    y_pred = []  # Liste pour stocker les classes prédites
+    y_true = []
+    y_pred = []
 
-    # Itération sur chaque classe dans l'ensemble de données
+    # Parcourir les images et effectuer des prédictions
     for i, cls in enumerate(classes):
-        class_dir = os.path.join(data_dir, cls)  # Chemin du dossier pour la classe actuelle
-        # Itération sur chaque image dans le dossier de classe
+        class_dir = os.path.join(data_dir, cls)
         for img_file in os.listdir(class_dir):
-            img_path = os.path.join(class_dir, img_file)  # Chemin de l'image
-            img = cv2.imread(img_path)  # Chargement de l'image
-            results = model(img)  # Prédiction sur l'image
+            img_path = os.path.join(class_dir, img_file)
+            results = model(img_path)
 
-            # Vérification et extraction des prédictions
-            preds = results if len(results) else []
-
-            if len(preds) > 0:
-                # Extraction des classes prédites et des confiances
-                pred_classes = [int(pred[-1]) for pred in preds]
-                confidences = [pred[4] for pred in preds]
-                best_pred_idx = np.argmax(confidences)  # Index de la prédiction avec la plus haute confiance
-                pred_class = pred_classes[best_pred_idx]  # Classe prédite avec la plus haute confiance
+            # Extraire la classe prédite avec la plus haute confiance
+            if len(results.xyxy[0]) > 0:
+                # Prendre la première détection (la plus confiante)
+                best_detection = results.xyxy[0][0]
+                pred_class = int(best_detection[-1])
                 y_pred.append(pred_class)
             else:
-                y_pred.append(None)  # Aucune prédiction
+                # Si aucune détection, ajouter None (à gérer selon le cas)
+                y_pred.append(None)
 
+            # Ajouter la vraie classe
             y_true.append(i)
 
     # Filtrer les None pour éviter les erreurs dans les métriques
@@ -41,14 +34,14 @@ def evaluate_model(data_dir, classes, model):
 
     return y_true_filtered, y_pred_filtered
 
-# Chargement du modèle pré-entraîné
-model_path = '/content/animal_classification/runs/classify/train/weights/best.pt'  # Assurez-vous que le chemin est correct
+# Charger le modèle pré-entraîné
+model_path = '/path/to/your/model.pt'  # Assurez-vous que le chemin est correct
 model = YOLO(model_path)
 
-# Chemins vers les dossiers de validation et de test
-val_dir = '/content/animal_classification/val'
-test_dir = '/content/animal_classification/test'
-classes = ['bird', 'cat', 'dog']  # Liste des classes
+# Définir les chemins des dossiers de validation et de test, et les classes
+val_dir = '/path/to/your/validation/dataset'
+test_dir = '/path/to/your/test/dataset'
+classes = ['class1', 'class2', 'class3']  # Modifier selon vos classes
 
 # Évaluation sur l'ensemble de validation
 print("Évaluation sur l'ensemble de validation:")
