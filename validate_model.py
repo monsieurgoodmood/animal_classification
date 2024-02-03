@@ -37,7 +37,7 @@ def evaluate_model(data_dir, classes, model):
 # Définition des chemins et des classes
 val_dir = '/content/animal_classification/val'
 classes = ['bird', 'cat', 'dog']
-model_path = '/content/animal_classification/runs/train/exp/weights/best.pt'  # Ajuster selon le chemin correct du modèle
+model_path = '/content/animal_classification/runs/classify/train/weights/best.pt'  # Ajuster selon le chemin correct du modèle
 model = YOLO(model_path)
 
 y_true_val, y_pred_val = evaluate_model(val_dir, classes, model)
