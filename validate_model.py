@@ -23,11 +23,11 @@ for i, cls in enumerate(classes):
         img_path = os.path.join(class_dir, img_file)
 
         # Effectuer la prédiction
-        result = model(img_path)
+        results = model(img_path)
 
-        # Récupérer la classe prédite (la plus haute confiance)
-        pred_class = result.pred[0][0] if isinstance(result.pred, list) else result.pred[0]  # Ajustez selon le format de sortie
-        y_pred.append(classes.index(pred_class))
+        # Récupérer la classe prédite (indice avec la plus haute confiance)
+        pred_index, _ = max(enumerate(results), key=lambda x: x[1][1])  # Prendre l'indice avec le max de confiance
+        y_pred.append(pred_index)
 
         # Ajouter la vraie classe
         y_true.append(i)
