@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import accuracy_score, precision_recall_fscore_support, confusion_matrix
 
 # Charger le modèle pré-entraîné
-model = YOLO('/content/animal_classification/best.pt')  # Assurez-vous du chemin
+model = YOLO('/content/animal_classification/runs/classify/train/weights/best.pt')  # Assurez-vous du chemin
 
 # Définir le chemin du dossier de validation et les classes
 val_dir = '/content/animal_classification/val'
