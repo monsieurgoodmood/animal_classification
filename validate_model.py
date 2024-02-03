@@ -15,12 +15,16 @@ def evaluate_model(data_dir, classes, model):
             img_path = os.path.join(class_dir, img_file)
             results = model(img_path)  # Effectuer la prédiction avec le chemin de l'image
 
-            # Gérer la structure des résultats retournés par Ultralytics YOLOv8
-            if len(results) > 0 and len(results.xyxy[0]) > 0:  # Vérifier si des détections ont été faites
-                preds = results.xyxy[0]  # Prendre les prédictions du premier lot (batch) si disponible
-                best_pred_idx = preds[:, 5].argmax()  # Trouver l'indice de la prédiction avec la confiance la plus élevée
-                pred_class = int(preds[best_pred_idx, 5])  # Obtenir la classe de la meilleure prédiction
-                y_pred.append(pred_class)
+            # S'assurer que les résultats sont sous la forme attendue
+            if len(results) > 0 and hasattr(results[0], 'xyxy'):
+                preds = results[0].xyxy[0]  # Prendre les prédictions du premier lot si disponible
+
+                if preds.shape[0] > 0:
+                    best_pred_idx = preds[:, 4].argmax()  # Trouver l'indice avec la confiance la plus élevée
+                    pred_class = int(preds[best_pred_idx, -1])  # Obtenir la classe de la meilleure prédiction
+                    y_pred.append(pred_class)
+                else:
+                    y_pred.append(-1)  # Indiquer l'absence de détection par -1
             else:
                 y_pred.append(-1)  # Indiquer l'absence de détection par -1
 
