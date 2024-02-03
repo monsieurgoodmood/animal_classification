@@ -1,9 +1,9 @@
 from ultralytics import YOLO
 import os
 import numpy as np
-import seaborn as sns
-import matplotlib.pyplot as plt
 from sklearn.metrics import accuracy_score, precision_recall_fscore_support, confusion_matrix
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 def evaluate_model(data_dir, classes, model):
     y_true = []
@@ -16,29 +16,24 @@ def evaluate_model(data_dir, classes, model):
             results = model(img_path)  # Effectuer la prédiction avec le chemin de l'image
 
             # S'assurer que les résultats sont sous la forme attendue
-            if len(results) > 0 and hasattr(results[0], 'xyxy'):
-                preds = results[0].xyxy[0]  # Prendre les prédictions du premier lot si disponible
-
-                if preds.shape[0] > 0:
-                    best_pred_idx = preds[:, 4].argmax()  # Trouver l'indice avec la confiance la plus élevée
-                    pred_class = int(preds[best_pred_idx, -1])  # Obtenir la classe de la meilleure prédiction
-                    y_pred.append(pred_class)
-                else:
-                    y_pred.append(-1)  # Indiquer l'absence de détection par -1
+            if results.xyxy[0].shape[0] > 0:  # Vérifiez si des prédictions ont été faites
+                for pred in results.xyxy[0]:
+                    y_pred.append(int(pred[-1].item()))  # Ajouter la classe prédite
             else:
-                y_pred.append(-1)  # Indiquer l'absence de détection par -1
+                y_pred.append(-1)  # Indiquer l'absence de détection
 
-            y_true.append(i)
+            y_true.append(i)  # Ajouter la classe réelle
 
     # Filtrer les valeurs -1 pour les prédictions manquantes
-    y_true, y_pred = zip(*[(t, p) for t, p in zip(y_true, y_pred) if p != -1])
+    y_true_filtered, y_pred_filtered = zip(*[(t, p) for t, p in zip(y_true, y_pred) if p != -1])
 
-    return np.array(y_true), np.array(y_pred)
+    if not y_true_filtered:
+        return np.array([]), np.array([])  # Retourne des tableaux vides si aucune prédiction valide
+    return np.array(y_true_filtered), np.array(y_pred_filtered)
 
 # Chemin vers le modèle et les dossiers de données
-model_path = '/content/animal_classification/runs/classify/train/weights/best.pt'
+model_path = '/content/animal_classification/runs/train/exp/weights/best.pt'
 val_dir = '/content/animal_classification/val'
-test_dir = '/content/animal_classification/test'
 classes = ['bird', 'cat', 'dog']
 
 # Initialisation du modèle
@@ -47,21 +42,17 @@ model = YOLO(model_path)
 # Évaluation sur l'ensemble de validation
 print("Évaluation sur l'ensemble de validation:")
 y_true_val, y_pred_val = evaluate_model(val_dir, classes, model)
-accuracy_val = accuracy_score(y_true_val, y_pred_val)
-precision_val, recall_val, fscore_val, _ = precision_recall_fscore_support(y_true_val, y_pred_val, average='weighted')
-print(f'Validation - Accuracy: {accuracy_val:.2f}, Precision: {precision_val:.2f}, Recall: {recall_val:.2f}, F1 Score: {fscore_val:.2f}')
+if y_true_val.size > 0 and y_pred_val.size > 0:
+    accuracy_val = accuracy_score(y_true_val, y_pred_val)
+    precision_val, recall_val, fscore_val, _ = precision_recall_fscore_support(y_true_val, y_pred_val, average='weighted')
+    print(f'Validation - Accuracy: {accuracy_val:.2f}, Precision: {precision_val:.2f}, Recall: {recall_val:.2f}, F1 Score: {fscore_val:.2f}')
 
-# Évaluation sur l'ensemble de test
-print("\nÉvaluation sur l'ensemble de test:")
-y_true_test, y_pred_test = evaluate_model(test_dir, classes, model)
-accuracy_test = accuracy_score(y_true_test, y_pred_test)
-precision_test, recall_test, fscore_test, _ = precision_recall_fscore_support(y_true_test, y_pred_test, average='weighted')
-print(f'Test - Accuracy: {accuracy_test:.2f}, Precision: {precision_test:.2f}, Recall: {recall_test:.2f}, F1 Score: {fscore_test:.2f}')
-
-# Affichage de la matrice de confusion
-conf_mat_test = confusion_matrix(y_true_test, y_pred_test)
-sns.heatmap(conf_mat_test, annot=True, fmt='d', xticklabels=classes, yticklabels=classes)
-plt.title('Confusion Matrix - Test Set')
-plt.ylabel('Actual')
-plt.xlabel('Predicted')
-plt.show()
+    # Affichage de la matrice de confusion
+    conf_mat_val = confusion_matrix(y_true_val, y_pred_val)
+    sns.heatmap(conf_mat_val, annot=True, fmt='d', xticklabels=classes, yticklabels=classes)
+    plt.title('Confusion Matrix - Validation Set')
+    plt.ylabel('Actual')
+    plt.xlabel('Predicted')
+    plt.show()
+else:
+    print("Aucune prédiction valide n'a été faite sur l'ensemble de validation.")
