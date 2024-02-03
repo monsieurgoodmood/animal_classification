@@ -7,6 +7,10 @@ from sklearn.model_selection import train_test_split
 data_path = '/content/drive/MyDrive/ColabNotebooks/raw_data/kaggle_dataset'
 classes = ['cat', 'bird', 'dog']
 total_images_per_class = 300  # Total d'images à sélectionner par classe
+desired_format = '.jpg'  # Format désiré pour les images
+
+# Initialiser un dictionnaire pour stocker le compte
+image_count = {'train': {}, 'val': {}, 'test': {}}
 
 # Créer des dossiers pour les ensembles d'entraînement, de validation et de test
 for cls in classes:
@@ -18,8 +22,8 @@ for cls in classes:
     corrected_path = os.path.join(data_path, cls, cls)  # Notez le double cls pour le chemin correct
 
     # Récupérer toutes les images et mélanger aléatoirement
-    images = os.listdir(corrected_path)
-    images = list(set(images))  # Supprimer les doublons
+    all_images = os.listdir(corrected_path)
+    images = [img for img in all_images if img.endswith(desired_format)]  # Filtrer pour ne garder que le format désiré
     random.shuffle(images)  # Mélanger les images pour sélectionner aléatoirement
 
     # Sélectionner un nombre fixe d'images si disponible
@@ -40,3 +44,14 @@ for cls in classes:
         shutil.copy(os.path.join(corrected_path, img), f'/content/animal_classification/val/{cls}')
     for img in test_imgs:
         shutil.copy(os.path.join(corrected_path, img), f'/content/animal_classification/test/{cls}')
+
+    # Stocker le compte dans le dictionnaire
+    image_count['train'][cls] = len(train_imgs)
+    image_count['val'][cls] = len(val_imgs)
+    image_count['test'][cls] = len(test_imgs)
+
+# Imprimer le nombre d'images pour chaque classe et chaque ensemble
+for set_type in image_count:
+    print(f"\nNombre d'images dans l'ensemble {set_type}:")
+    for cls in classes:
+        print(f" - {cls}: {image_count[set_type][cls]}")
