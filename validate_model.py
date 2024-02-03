@@ -9,7 +9,7 @@ from pathlib import Path
 model = YOLO('/content/drive/MyDrive/ColabNotebooks/best.pt')  # Remplacez par le chemin réel de votre fichier best.pt
 
 # Charger les données de validation
-data_yaml = 'content/animal_classification/animal_data.yaml'  # Remplacez par le chemin réel vers votre fichier YAML de données
+data_yaml = '/content/animal_classification'  # Remplacez par le chemin réel vers votre fichier YAML de données
 with open(data_yaml) as f:
     data = yaml.safe_load(f)  # Charger le fichier YAML
 val_dir = data['val']  # Récupérer le chemin vers les données de validation
