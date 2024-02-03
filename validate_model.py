@@ -21,13 +21,13 @@ def evaluate_model(data_dir, classes, model):
             img = cv2.imread(img_path)  # Chargement de l'image
             results = model(img)  # Prédiction sur l'image
 
-            # Extraction des prédictions
-            preds = results.pred[0] if results.pred and len(results.pred[0]) else []
+            # Vérification et extraction des prédictions
+            preds = results if len(results) else []
 
             if len(preds) > 0:
                 # Extraction des classes prédites et des confiances
-                pred_classes = preds[:, -1].int().tolist()
-                confidences = preds[:, 4].tolist()
+                pred_classes = [int(pred[-1]) for pred in preds]
+                confidences = [pred[4] for pred in preds]
                 best_pred_idx = np.argmax(confidences)  # Index de la prédiction avec la plus haute confiance
                 pred_class = pred_classes[best_pred_idx]  # Classe prédite avec la plus haute confiance
                 y_pred.append(pred_class)
