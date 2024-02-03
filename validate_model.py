@@ -5,50 +5,59 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.metrics import accuracy_score, precision_recall_fscore_support, confusion_matrix
 
+def evaluate_model(data_dir, classes, model):
+    # Initialiser les listes pour les vraies étiquettes et les prédictions
+    y_true = []
+    y_pred = []
+
+    # Parcourir les images et effectuer des prédictions
+    for i, cls in enumerate(classes):
+        class_dir = os.path.join(data_dir, cls)
+        for img_file in os.listdir(class_dir):
+            img_path = os.path.join(class_dir, img_file)
+
+            # Effectuer la prédiction
+            results = model(img_path)
+
+            # Récupérer la classe prédite (indice avec la plus haute confiance)
+            pred_index, _ = max(enumerate(results), key=lambda x: x[1][1])  # Prendre l'indice avec le max de confiance
+            y_pred.append(pred_index)
+
+            # Ajouter la vraie classe
+            y_true.append(i)
+
+    return y_true, y_pred
+
 # Charger le modèle pré-entraîné
 model = YOLO('/content/animal_classification/runs/classify/train/weights/best.pt')  # Assurez-vous du chemin
 
-# Définir le chemin du dossier de validation et les classes
+# Définir les chemins des dossiers de validation et de test, et les classes
 val_dir = '/content/animal_classification/val'
+test_dir = '/content/animal_classification/test'
 classes = ['bird', 'cat', 'dog']
 
-# Initialiser les listes pour les vraies étiquettes et les prédictions
-y_true = []
-y_pred = []
+# Évaluer sur l'ensemble de validation
+print("Évaluation sur l'ensemble de validation:")
+y_true_val, y_pred_val = evaluate_model(val_dir, classes, model)
 
-# Parcourir les images de validation et effectuer des prédictions
-for i, cls in enumerate(classes):
-    class_dir = os.path.join(val_dir, cls)
-    for img_file in os.listdir(class_dir):
-        img_path = os.path.join(class_dir, img_file)
+# Calculer et afficher les métriques pour l'ensemble de validation
+accuracy_val = accuracy_score(y_true_val, y_pred_val)
+precision_val, recall_val, fscore_val, _ = precision_recall_fscore_support(y_true_val, y_pred_val, average='weighted')
+print(f'Validation - Accuracy: {accuracy_val:.2f}, Precision: {precision_val:.2f}, Recall: {recall_val:.2f}, F1 Score: {fscore_val:.2f}')
 
-        # Effectuer la prédiction
-        results = model(img_path)
+# Évaluer sur l'ensemble de test
+print("\nÉvaluation sur l'ensemble de test:")
+y_true_test, y_pred_test = evaluate_model(test_dir, classes, model)
 
-        # Récupérer la classe prédite (indice avec la plus haute confiance)
-        pred_index, _ = max(enumerate(results), key=lambda x: x[1][1])  # Prendre l'indice avec le max de confiance
-        y_pred.append(pred_index)
+# Calculer et afficher les métriques pour l'ensemble de test
+accuracy_test = accuracy_score(y_true_test, y_pred_test)
+precision_test, recall_test, fscore_test, _ = precision_recall_fscore_support(y_true_test, y_pred_test, average='weighted')
+print(f'Test - Accuracy: {accuracy_test:.2f}, Precision: {precision_test:.2f}, Recall: {recall_test:.2f}, F1 Score: {fscore_test:.2f}')
 
-        # Ajouter la vraie classe
-        y_true.append(i)
-
-# Calculer les métriques globales
-accuracy = accuracy_score(y_true, y_pred)
-precision, recall, fscore, _ = precision_recall_fscore_support(y_true, y_pred, average='weighted')
-
-# Afficher les métriques
-print(f'Accuracy: {accuracy:.2f}')
-print(f'Precision: {precision:.2f}')
-print(f'Recall: {recall:.2f}')
-print(f'F1 Score: {fscore:.2f}')
-
-# Afficher la matrice de confusion
-conf_mat = confusion_matrix(y_true, y_pred)
-print('Confusion Matrix:')
-print(conf_mat)
-
-# Pour afficher la matrice de confusion plus visuellement
-sns.heatmap(conf_mat, annot=True, fmt='d', xticklabels=classes, yticklabels=classes)
+# Afficher la matrice de confusion pour l'ensemble de test
+conf_mat_test = confusion_matrix(y_true_test, y_pred_test)
+sns.heatmap(conf_mat_test, annot=True, fmt='d', xticklabels=classes, yticklabels=classes)
+plt.title('Confusion Matrix - Test Set')
 plt.ylabel('Actual')
 plt.xlabel('Predicted')
 plt.show()

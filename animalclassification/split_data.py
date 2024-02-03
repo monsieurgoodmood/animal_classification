@@ -6,7 +6,7 @@ from sklearn.model_selection import train_test_split
 # Définir le chemin de votre dossier de données
 data_path = '/content/drive/MyDrive/ColabNotebooks/raw_data/kaggle_dataset'
 classes = ['cat', 'bird', 'dog']
-total_images_per_class = 150  # Total d'images à sélectionner par classe
+total_images_per_class = 300  # Total d'images à sélectionner par classe
 
 # Créer des dossiers pour les ensembles d'entraînement, de validation et de test
 for cls in classes:
