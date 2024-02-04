@@ -22,16 +22,16 @@ def evaluate_model(data_dir, classes, model):
             img_path = os.path.join(class_dir, img_file)
             results = model(img_path)  # Prédire avec le modèle
 
-            # Assurez-vous que les résultats sont traités correctement
-            if results.pred is not None and len(results.pred[0]) > 0:
-                pred_probs = results.pred[0][:, 5:].cpu().numpy()  # Extraire les probabilités
-                pred_class_id = np.argmax(pred_probs, axis=1)  # Obtenir les ID de classe prédits
-                y_true.extend([i] * len(pred_class_id))
-                y_pred.extend(pred_class_id)
+            # Vérifier si des résultats de classification sont présents et les traiter correctement
+            if results and hasattr(results[0], 'probs') and results[0].probs is not None:
+                pred_probs = results[0].probs[0]  # Assumer la première prédiction contient les probabilités
+                pred_class_id = np.argmax(pred_probs)  # Obtenir l'ID de classe avec la probabilité la plus élevée
+                y_true.append(i)
+                y_pred.append(pred_class_id)
             else:
                 # Gérer les cas où aucune prédiction de classe n'est faite
-                y_true.append(i)
                 y_pred.append(-1)  # Utiliser -1 pour les prédictions manquantes
+                y_true.append(i)
 
     return np.array(y_true), np.array(y_pred)
 
