@@ -3,9 +3,10 @@ from ultralytics import YOLO
 import numpy as np
 from sklearn.metrics import accuracy_score, precision_recall_fscore_support
 
-# Chemin vers le dossier contenant les images de validation classées par dossiers de classe
+# Définir le chemin vers le dossier contenant les images de validation classées par dossiers de classe
 val_dir = '/content/animal_classification/val'
-# Liste des classes dans l'ordre utilisé lors de l'entraînement
+
+# Définir la liste des classes dans l'ordre utilisé lors de l'entraînement
 classes = ['bird', 'cat', 'dog']
 
 # Charger le modèle YOLOv8 pré-entraîné ou personnalisé
@@ -21,16 +22,16 @@ def evaluate_model(data_dir, classes, model):
             img_path = os.path.join(class_dir, img_file)
             results = model(img_path)  # Prédire avec le modèle
 
-            # S'assurer qu'il y a une prédiction et extraire les probabilités
-            if results and hasattr(results[0], 'probs') and results[0].probs is not None:
-                pred_probs = results[0].probs
-                pred_class_id = np.argmax(pred_probs)  # Obtenir l'ID de classe avec la probabilité la plus élevée
-                y_true.append(i)
-                y_pred.append(pred_class_id)
+            # Assurez-vous que les résultats sont traités correctement
+            if results.pred is not None and len(results.pred[0]) > 0:
+                pred_probs = results.pred[0][:, 5:].cpu().numpy()  # Extraire les probabilités
+                pred_class_id = np.argmax(pred_probs, axis=1)  # Obtenir les ID de classe prédits
+                y_true.extend([i] * len(pred_class_id))
+                y_pred.extend(pred_class_id)
             else:
                 # Gérer les cas où aucune prédiction de classe n'est faite
-                y_pred.append(-1)  # Utiliser -1 pour les prédictions manquantes
                 y_true.append(i)
+                y_pred.append(-1)  # Utiliser -1 pour les prédictions manquantes
 
     return np.array(y_true), np.array(y_pred)
 
@@ -38,8 +39,7 @@ def evaluate_model(data_dir, classes, model):
 y_true_val, y_pred_val = evaluate_model(val_dir, classes, model)
 # Filtrer les prédictions manquantes
 valid_indices = y_pred_val != -1
-y_true_val = y_true_val[valid_indices]
-y_pred_val = y_pred_val[valid_indices]
+y_true_val, y_pred_val = y_true_val[valid_indices], y_pred_val[valid_indices]
 
 # Calculer les métriques si des prédictions valides ont été faites
 if len(y_true_val) > 0 and len(y_pred_val) > 0:
