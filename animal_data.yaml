@@ -1,9 +1,0 @@
-train: ../train/
-val: ../val/
-test: ../test/  # si vous avez également un ensemble de test
-
-nc: 3
-names:
-- cat
-- dog
-- bird
